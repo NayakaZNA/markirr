@@ -35,6 +35,38 @@ tempat_parkir = {
 # Inisialisasi Data Tempat Parkir
 vehicle_type    = ''
 
+# D
+def slot_av(xs: float, ys: float, blok: str, num: int, page: tk.Frame):
+    slot_av_l   = tk.Button(
+    page,
+    text= f"{blok}{num}",
+    bg="#1F93C5"
+    )
+    slot_av_l.place(
+        x       = xs,
+        y       = ys,
+        width   = 34,
+        height  = 51
+    )
+    slot_av_l.configure(borderwidth=0, highlightthickness=0, activebackground="#D5DCEE")
+    return
+
+def slot_un(xs: float, ys: float, blok: str, num: int, page: tk.Frame):
+    slot_un_l   = tk.Button(
+    page,
+    text= f"{blok}{num}",
+    background="#A7B8C8"
+    )
+    slot_un_l.place(
+        x       = xs,
+        y       = ys,
+        width   = 34,
+        height  = 51
+    )
+    slot_un_l.configure(borderwidth=0, highlightthickness=0, state="disabled")
+    return
+
+
 # Konfigurasi Window
 window  = tk.Tk()
 window.geometry("760x570")
@@ -169,9 +201,32 @@ markirrl_l.place(
 )
 
 ### Button Parkir
-{
+#### Blok A
+slot_av(117, 98, 'A', 1, p2_mobil)
+slot_av(159, 98, 'A', 2, p2_mobil)
+slot_av(201, 98, 'A', 3, p2_mobil)
+slot_av(243, 98, 'A', 4, p2_mobil)
+slot_un(285, 98, 'A', 5, p2_mobil)
 
-}
+### Blok B
+slot_av(404, 98, 'B', 1, p2_mobil)
+slot_un(446, 98, 'B', 2, p2_mobil)
+slot_un(488, 98, 'B', 3, p2_mobil)
+slot_un(530, 98, 'B', 4, p2_mobil)
+slot_av(572, 98, 'B', 5, p2_mobil)
+
+### Blok C
+slot_av(160, 234, 'C', 1, p2_mobil)
+slot_un(230, 234, 'C', 2, p2_mobil)
+slot_av(300, 234, 'C', 3, p2_mobil)
+slot_av(370, 234, 'C', 4, p2_mobil)
+
+#### Blok D
+slot_un(117, 363, 'D', 1, p2_mobil)
+slot_av(159, 363, 'D', 2, p2_mobil)
+slot_av(201, 363, 'D', 3, p2_mobil)
+slot_un(243, 363, 'D', 4, p2_mobil)
+slot_av(285, 363, 'D', 5, p2_mobil)
 
 # Halaman 2 (Motor)
 p2_motor.configure(bg="#243447")
