@@ -5,10 +5,16 @@ from pathlib import Path
 # Ini jangan diotak-atik rek
 import os
 khongguan = os.path.join(os.path.dirname(os.path.realpath(__file__)), "./Assets/")
-def gambar(indomie: str) -> Path:
+def gambar(indomie: str) -> str:
     return khongguan + indomie
 
-# dictionary Data Tempat Parkir
+# Inisialisasi Awal
+## Tipe Kendaraan
+vehicle_type    = ''
+slot_mobil      = [[0 for i in range(5)] for i in range(5)]
+#slot_motor      =
+
+## Dictionary Data Tempat Parkir
 tempat_parkir = {
     'motor': {
         'reguler': {
@@ -32,46 +38,54 @@ tempat_parkir = {
     }
 }
 
-# Inisialisasi Data Tempat Parkir
-vehicle_type    = ''
-
-# D
-def slot_av(xs: float, ys: float, blok: str, num: int, page: tk.Frame):
-    slot_av_l   = tk.Button(
+# Fungsi dan Prosedur
+## Prosedur slot
+def slot(x: float, y: float, blok: str, num: int, page: tk.Frame, disabled: bool = False):
+    # Pembuat Button Slot Parkir
+    slot_l   = tk.Button(
     page,
     text= f"{blok}{num}",
     bg="#1F93C5"
     )
-    slot_av_l.place(
-        x       = xs,
-        y       = ys,
+    slot_l.place(
+        x       = x,
+        y       = y,
         width   = 34,
         height  = 51
     )
-    slot_av_l.configure(borderwidth=0, highlightthickness=0, activebackground="#D5DCEE")
+    slot_l.configure(command= lambda: p3.tkraise())
+    if disabled:
+        slot_l.configure(borderwidth=0, highlightthickness=0, background="#A7B8C8", state="disabled")
+    else:
+        slot_l.configure(borderwidth=0, highlightthickness=0, activebackground="#D5DCEE")
     return
 
-def slot_un(xs: float, ys: float, blok: str, num: int, page: tk.Frame):
-    slot_un_l   = tk.Button(
-    page,
-    text= f"{blok}{num}",
-    background="#A7B8C8"
+## Prosedur label
+def label(label_img: tk.PhotoImage, page: tk.Frame, x: float, y: float, width: float, height: float):
+    # Pembuat Label Tkinter
+    label_l    = tk.Label(page, image = label_img)
+    label_l.place(
+        x       = x,
+        y       = y,
+        width   = width,
+        height  = height
     )
-    slot_un_l.place(
-        x       = xs,
-        y       = ys,
-        width   = 34,
-        height  = 51
-    )
-    slot_un_l.configure(borderwidth=0, highlightthickness=0, state="disabled")
     return
-
 
 # Konfigurasi Window
 window  = tk.Tk()
 window.geometry("760x570")
 window.resizable(False, False)
 window.title("Markirr™")
+
+# Import Assets
+header_img  = ImageTk.PhotoImage(Image.open(gambar("header.png")))
+markirrw_img= ImageTk.PhotoImage(Image.open(gambar("markirr-white.png")))
+markirrl_img= ImageTk.PhotoImage(Image.open(gambar("markirr_black.png")))
+border_img  = ImageTk.PhotoImage(Image.open(gambar("parking_border.png")))
+text1_img   = ImageTk.PhotoImage(Image.open(gambar("text1.png")))
+text2_img   = ImageTk.PhotoImage(Image.open(gambar("text2.png")))
+text3_img   = ImageTk.PhotoImage(Image.open(gambar("text3.png")))
 
 # Halaman-Halaman
 p1          = tk.Frame(window, width=760, height=570)
@@ -83,40 +97,18 @@ p4          = tk.Frame(window, width=760, height=570)
 for frame in (p1, p2_mobil, p2_motor, p3, p4):
     frame.grid(row=0, column=0, sticky='news')
 
-
 # Halaman Utama
 p1.configure(bg="#243447")
 p1.place(anchor='center', relx=0.5, rely=0.5)
 
 ## Header
-header_img  = ImageTk.PhotoImage(Image.open(gambar("header.png")))
-header_l    = tk.Label(p1, image = header_img)
-header_l.place(
-    x       = 0,
-    y       = -32,
-    width   = 760,
-    height  = 231
-)
+label(header_img, p1, 0, -32, 760, 231)
 
 ## Logo & Slogan
-markirrw_img= ImageTk.PhotoImage(Image.open(gambar("markirr-white.png")))
-markirrw_l  = tk.Label(p1, image = markirrw_img)
-markirrw_l.place(
-    x       = 264,
-    y       = 42,
-    width   = 257,
-    height  = 98
-)
+label(markirrw_img, p1, 264, 42, 257, 98)
 
 ## Instruksi
-text1_img   = ImageTk.PhotoImage(Image.open(gambar("text1.png")))
-text1_l     = tk.Label(p1, image = text1_img)
-text1_l.place(
-    x       = 208,
-    y       = 231,
-    width   = 343,
-    height  = 22
-)
+label(text1_img, p1, 208, 231, 343, 22)
 
 ## Mobil
 mobil_img   = ImageTk.PhotoImage(Image.open(gambar("mobil.png")))
@@ -130,8 +122,6 @@ mobil_l.place(
     height  = 205
 )
 mobil_l.configure(borderwidth=0, highlightthickness=0, activebackground="#243447")
-
-print(vehicle_type)
 
 ## Motor
 motor_img   = ImageTk.PhotoImage(Image.open(gambar("motor.png")))
@@ -167,66 +157,41 @@ home1_l.configure(borderwidth=0, highlightthickness=0, activebackground="#243447
 
 ## Layout Parkir
 ### Border
-border_img  = ImageTk.PhotoImage(Image.open(gambar("parking_border.png")))
-border_l    = tk.Label(
-    p2_mobil, image = border_img
-)
-border_l.place(
-    x       = 70,
-    y       = 85,
-    width   = 593,
-    height  = 342
-)
+label(border_img, p2_mobil, 70, 85, 593, 342)
+
 ### Tersedia?
-text2_img   = ImageTk.PhotoImage(Image.open(gambar("text2.png")))
-text2_l     = tk.Label(
-    p2_mobil, image = text2_img
-)
-text2_l.place(
-    x       = 486,
-    y       = 404,
-    width   = 144,
-    height  = 83
-)
+label(text2_img, p2_mobil, 486, 404, 144, 83)
+
 ### Markirr Logo
-markirrl_img= ImageTk.PhotoImage(Image.open(gambar("markirr_black.png")))
-markirrl_l  = tk.Label(
-    p2_mobil, image = markirrl_img
-)
-markirrl_l.place(
-    x       = 26,
-    y       = 506,
-    width   = 125,
-    height  = 42
-)
+label(markirrl_img, p2_mobil, 26, 506, 125, 42)
 
 ### Button Parkir
 #### Blok A
-slot_av(117, 98, 'A', 1, p2_mobil)
-slot_av(159, 98, 'A', 2, p2_mobil)
-slot_av(201, 98, 'A', 3, p2_mobil)
-slot_av(243, 98, 'A', 4, p2_mobil)
-slot_un(285, 98, 'A', 5, p2_mobil)
+slot(117, 98, 'A', 1, p2_mobil)
+slot(159, 98, 'A', 2, p2_mobil)
+slot(201, 98, 'A', 3, p2_mobil)
+slot(243, 98, 'A', 4, p2_mobil)
+slot(285, 98, 'A', 5, p2_mobil, disabled=True)
 
 ### Blok B
-slot_av(404, 98, 'B', 1, p2_mobil)
-slot_un(446, 98, 'B', 2, p2_mobil)
-slot_un(488, 98, 'B', 3, p2_mobil)
-slot_un(530, 98, 'B', 4, p2_mobil)
-slot_av(572, 98, 'B', 5, p2_mobil)
+slot(404, 98, 'B', 1, p2_mobil)
+slot(446, 98, 'B', 2, p2_mobil, disabled=True)
+slot(488, 98, 'B', 3, p2_mobil, disabled=True)
+slot(530, 98, 'B', 4, p2_mobil, disabled=True)
+slot(572, 98, 'B', 5, p2_mobil)
 
 ### Blok C
-slot_av(160, 234, 'C', 1, p2_mobil)
-slot_un(230, 234, 'C', 2, p2_mobil)
-slot_av(300, 234, 'C', 3, p2_mobil)
-slot_av(370, 234, 'C', 4, p2_mobil)
+slot(160, 234, 'C', 1, p2_mobil)
+slot(230, 234, 'C', 2, p2_mobil, disabled=True)
+slot(300, 234, 'C', 3, p2_mobil)
+slot(370, 234, 'C', 4, p2_mobil)
 
 #### Blok D
-slot_un(117, 363, 'D', 1, p2_mobil)
-slot_av(159, 363, 'D', 2, p2_mobil)
-slot_av(201, 363, 'D', 3, p2_mobil)
-slot_un(243, 363, 'D', 4, p2_mobil)
-slot_av(285, 363, 'D', 5, p2_mobil)
+slot(117, 363, 'D', 1, p2_mobil, disabled=True)
+slot(159, 363, 'D', 2, p2_mobil)
+slot(201, 363, 'D', 3, p2_mobil)
+slot(243, 363, 'D', 4, p2_mobil, disabled=True)
+slot(285, 363, 'D', 5, p2_mobil)
 
 # Halaman 2 (Motor)
 p2_motor.configure(bg="#243447")
@@ -244,6 +209,15 @@ home2_l.place(
     height  = 79
 )
 home2_l.configure(borderwidth=0, highlightthickness=0, activebackground="#243447")
+
+# Halaman 3 (Plat Nomor)
+p3.configure(bg="#243447")
+p3.place(anchor='center', relx=0.5, rely=0.5)
+## Header
+label(header_img, p3, 0, -32, 760, 231)
+
+## Logo & Slogan
+label(markirrw_img, p3, 264, 42, 257, 98)
 
 # Eksekusi
 p1.tkraise()
