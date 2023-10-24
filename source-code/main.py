@@ -1,6 +1,5 @@
 import tkinter as tk
 from PIL import ImageTk, Image
-from pathlib import Path
 
 # Ini jangan diotak-atik rek
 import os
@@ -12,7 +11,11 @@ def gambar(indomie: str) -> str:
 ## Tipe Kendaraan
 vehicle_type    = ''
 slot_mobil      = [[0 for i in range(5)] for i in range(5)]
-#slot_motor      =
+#slot_motor     =
+plat_nomor      = ["A","AA","AB","AD","AE","AG","B","BA","BB","BD","BE","BG","BH","BK","BL","BM","BN",
+                   "BP","BR","D","DA","DB","DC","DD","DE","DG","DH","DK","DL","DM","DN","DP","DR","DT","DW",
+                   "E","EA","EB","ED","F","G","H","K","KB","KH","KT","KU","L","M","N","P","PA","PB","S","T",
+                   "W","Z"]
 
 ## Dictionary Data Tempat Parkir
 tempat_parkir = {
@@ -37,6 +40,22 @@ tempat_parkir = {
         }
     }
 }
+
+# Konfigurasi Window
+window  = tk.Tk()
+window.geometry("760x570")
+window.resizable(False, False)
+window.title("Markirr™")
+
+# Import Assets
+header_img  = ImageTk.PhotoImage(Image.open(gambar("header.png")))
+markirrw_img= ImageTk.PhotoImage(Image.open(gambar("markirr-white.png")))
+markirrl_img= ImageTk.PhotoImage(Image.open(gambar("markirr_black.png")))
+border_img  = ImageTk.PhotoImage(Image.open(gambar("parking_border.png")))
+home_img    = ImageTk.PhotoImage(Image.open(gambar("home.png")))
+text1_img   = ImageTk.PhotoImage(Image.open(gambar("text1.png")))
+text2_img   = ImageTk.PhotoImage(Image.open(gambar("text2.png")))
+text3_img   = ImageTk.PhotoImage(Image.open(gambar("text3.png")))
 
 # Fungsi dan Prosedur
 ## Prosedur slot
@@ -72,20 +91,19 @@ def label(label_img: tk.PhotoImage, page: tk.Frame, x: float, y: float, width: f
     )
     return
 
-# Konfigurasi Window
-window  = tk.Tk()
-window.geometry("760x570")
-window.resizable(False, False)
-window.title("Markirr™")
-
-# Import Assets
-header_img  = ImageTk.PhotoImage(Image.open(gambar("header.png")))
-markirrw_img= ImageTk.PhotoImage(Image.open(gambar("markirr-white.png")))
-markirrl_img= ImageTk.PhotoImage(Image.open(gambar("markirr_black.png")))
-border_img  = ImageTk.PhotoImage(Image.open(gambar("parking_border.png")))
-text1_img   = ImageTk.PhotoImage(Image.open(gambar("text1.png")))
-text2_img   = ImageTk.PhotoImage(Image.open(gambar("text2.png")))
-text3_img   = ImageTk.PhotoImage(Image.open(gambar("text3.png")))
+## Prosedur Home
+def home(page: tk.Frame):
+    home_l     = tk.Button(
+        page, image = home_img, 
+        command = lambda: [p1.tkraise()])
+    home_l.place(
+        x       = 701,
+        y       = 229,
+        width   = 89,
+        height  = 79
+    )
+    home_l.configure(borderwidth=0, highlightthickness=0, activebackground="#243447")
+    return
 
 # Halaman-Halaman
 p1          = tk.Frame(window, width=760, height=570)
@@ -143,17 +161,7 @@ p2_mobil.configure(bg="#243447")
 p2_mobil.place(anchor='center', relx=0.5, rely=0.5)
 
 ## Tombol Home
-home1_img   = ImageTk.PhotoImage(Image.open(gambar("home.png")))
-home1_l     = tk.Button(
-    p2_mobil, image = home1_img, 
-    command = lambda: [p1.tkraise()])
-home1_l.place(
-    x       = 701,
-    y       = 229,
-    width   = 89,
-    height  = 79
-)
-home1_l.configure(borderwidth=0, highlightthickness=0, activebackground="#243447")
+home(p2_mobil)
 
 ## Layout Parkir
 ### Border
@@ -198,17 +206,7 @@ p2_motor.configure(bg="#243447")
 p2_motor.place(anchor='center', relx=0.5, rely=0.5)
 
 ## Tombol Home
-home2_img   = ImageTk.PhotoImage(Image.open(gambar("home.png")))
-home2_l     = tk.Button(
-    p2_motor, image = home2_img,
-    command = lambda: [p1.tkraise()])
-home2_l.place(
-    x       = 701,
-    y       = 229,
-    width   = 89,
-    height  = 79
-)
-home2_l.configure(borderwidth=0, highlightthickness=0, activebackground="#243447")
+home(p2_motor)
 
 # Halaman 3 (Plat Nomor)
 p3.configure(bg="#243447")
@@ -218,6 +216,23 @@ label(header_img, p3, 0, -32, 760, 231)
 
 ## Logo & Slogan
 label(markirrw_img, p3, 264, 42, 257, 98)
+
+## Instruksi
+label(text3_img, p3, 227, 205, 304, 21)
+
+## Tombol Home
+home(p3)
+
+## Dropdown
+var = tk.StringVar(window)
+var.set(plat_nomor[0])
+menu = tk.OptionMenu(p3, var, *plat_nomor)
+menu.place(
+    x       = 179,
+    y       = 240,
+    width   = 53,
+    height  = 37
+)
 
 # Eksekusi
 p1.tkraise()
