@@ -59,8 +59,8 @@ text3_img   = ImageTk.PhotoImage(Image.open(gambar("text3.png")))
 
 # Fungsi dan Prosedur
 ## Prosedur slot
-def slot(x: float, y: float, blok: str, num: int, page: tk.Frame, disabled: bool = False):
-    # Pembuat Button Slot Parkir
+def slot(x: float, y: float, blok: str, num: int, page: tk.Frame, disabled: bool = False, VIP: bool = False):
+    # Membuat button slot parkir
     slot_l   = tk.Button(
     page,
     text= f"{blok}{num}",
@@ -81,7 +81,7 @@ def slot(x: float, y: float, blok: str, num: int, page: tk.Frame, disabled: bool
 
 ## Prosedur label
 def label(label_img: tk.PhotoImage, page: tk.Frame, x: float, y: float, width: float, height: float):
-    # Pembuat Label Tkinter
+    # Membuat label Tkinter
     label_l    = tk.Label(page, image = label_img)
     label_l.place(
         x       = x,
@@ -91,8 +91,9 @@ def label(label_img: tk.PhotoImage, page: tk.Frame, x: float, y: float, width: f
     )
     return
 
-## Prosedur Home
+## Prosedur home
 def home(page: tk.Frame):
+    # Membuat tombol home
     home_l     = tk.Button(
         page, image = home_img, 
         command = lambda: [p1.tkraise()])
@@ -104,6 +105,24 @@ def home(page: tk.Frame):
     )
     home_l.configure(borderwidth=0, highlightthickness=0, activebackground="#243447")
     return
+
+## Prosedur disable_after_clicked
+def disable_after_clicked_ok():
+    # Menonaktifkan tombol setelah diklik
+    ok['state'] = 'disabled'
+    return
+
+## Prosedur update_tnkb
+def update_tnkb():
+    global tnkb
+    tnkb_value = f"{kode_wilayah.get()} {nopol.get()} {seri_wilayah.get()}"
+    tnkb = tnkb_value
+    return
+
+## Prosedur caps
+def caps(*args):
+   seri_wilayah.set(seri_wilayah.get().upper())
+   return
 
 # Halaman-Halaman
 p1          = tk.Frame(window, width=760, height=570)
@@ -223,16 +242,64 @@ label(text3_img, p3, 227, 205, 304, 21)
 ## Tombol Home
 home(p3)
 
-## Dropdown
-var = tk.StringVar(window)
-var.set(plat_nomor[0])
-menu = tk.OptionMenu(p3, var, *plat_nomor)
-menu.place(
-    x       = 179,
+## TNKB
+tnkb = "          "
+
+### Dropdown Kode Wilayah
+kode_wilayah = tk.StringVar(p3)
+kode_wilayah.set(plat_nomor[0])
+kode_wilayah_menu   = tk.OptionMenu(p3, kode_wilayah, *plat_nomor)
+kode_wilayah_menu.place(
+    x       = 264,
     y       = 240,
     width   = 53,
     height  = 37
 )
+
+## Nopol
+
+nopol       = tk.StringVar(p3)
+nopol_menu  = tk.Entry(p3, textvariable=nopol,font='Garamond 15', justify="center")
+nopol_menu.place(
+    x       = 337,
+    y       = 240,
+    width   = 68,
+    height  = 37
+)
+
+## Seri Wilayah
+
+
+seri_wilayah        = tk.StringVar(p3)
+seri_wilayah_menu   = tk.Entry(p3, textvariable=seri_wilayah, font='Garamond 15', justify="center")
+seri_wilayah_menu.place(
+    x       = 425,
+    y       = 240,
+    width   = 53,
+    height  = 37
+)
+seri_wilayah_menu.bind("<KeyRelease>", caps)
+
+## OK
+def ok_clicked():
+    nopol_value = nopol.get()
+    seri_wilayah_value = seri_wilayah.get()
+    if nopol_value.strip() and seri_wilayah_value.strip():
+        update_tnkb()
+        kode_wilayah_menu.config(state='disabled')
+        nopol_menu.config(state='disabled')
+        seri_wilayah_menu.config(state='disabled')
+    else:
+        print("Nopol and Seri Wilayah cannot be empty")
+
+ok          = tk.Button(p3, text='OK', command=lambda : [ok_clicked(), print(tnkb)])
+ok.place(
+    x       = 490,
+    y       = 240,
+    width   = 37,
+    height  = 37
+)
+
 
 # Eksekusi
 p1.tkraise()
