@@ -1,7 +1,7 @@
 # tubes-markirr
-- William Anthony (16523109)
-- Muhammad Jafar Fadli (16523137)
-- Zulfaqqar Nayaka Athadiansyah (19623116)
+- William Anthony (16523109),
+- Muhammad Jafar Fadli (16523137),
+- Zulfaqqar Nayaka Athadiansyah (19623116), dan
 - Abdullah Farhan (19623305)
   
 mempersembahkan Tugas Besar 1 KU1202 Pengenalan Komputasi: Markirr™.
