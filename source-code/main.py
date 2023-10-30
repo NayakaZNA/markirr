@@ -54,12 +54,13 @@ vehicle_type    = ''
 slot_id         = ["", 0]
 slots           = [[0 for j in range(5)] for i in range(4)]     +   [[0 for i in range(10)] for i in range(4)]
 plat            = [["" for j in range(5)] for i in range(4)]    +   [["" for j in range(10)] for i in range(4)]
-durasi          = [[0 for j in range(5)] for i in range(4)]     +   [[0 for i in range(10)] for i in range(4)]
-filled          = ["Masukkan slot parkir Anda:"]
+durasi          = [[datetime.now() for j in range(5)] for i in range(4)]     +   [[datetime.now() for i in range(10)] for i in range(4)]
+filled          = ["A0"]
 tersedia_mobil  = 20
 tersedia_motor  = 36
 jam, menit, detik = 0, 0, 0
 berjalan        = True
+count           = -1
 
 # Konfigurasi Window
 window  = tk.Tk()
@@ -131,6 +132,7 @@ def slot_clicked(slot: tk.Button, blok: str, num: int, type: str, slot_id = slot
     # Menyimpan data
     slots[slot_id[0]][slot_id[1]] = 1
     durasi[slot_id[0]][slot_id[1]] = datetime.now()
+    print(durasi)
 
     # Counter ketersediaan slot parkir
     if type == 'mobil':
@@ -157,9 +159,9 @@ def slot_clicked(slot: tk.Button, blok: str, num: int, type: str, slot_id = slot
     return 
 
 ## Prosedur exit_clicked
+slots_filled        = tk.StringVar()
 def exit_clicked():
     p4.tkraise()
-    slots_filled        = tk.StringVar()
     slots_filled.set(filled[0])
     slots_filled_menu   = tk.OptionMenu(p4, slots_filled, *filled)
     slots_filled_menu.place(
@@ -257,6 +259,8 @@ def ok_clicked():
     else: # Entri nopol atau seri wilayah belum diisi
         print("Kolom Nopol dan Seri Wilayah tidak boleh kosong.")
     
+    
+
     ## Memunculkan tombol `exit`
     exit_l     = tk.Button(
         p1, image = exit_img, 
@@ -522,7 +526,22 @@ label(durasi_img, p4, 55, 266, 250, 97)
 ## Biaya
 label(biaya_img, p4, 455, 266, 250, 97)
 
+def callback(*args):
+    global count, jam, menit, detik
+    if count == -1:
+        filled.remove('A0')
+        count += 1
+    slot_id[0] = blokk[slots_filled.get()[0]]
+    slot_id[1] = int(slots_filled.get()[1]) - 1
+    waktu = datetime.now() - durasi[slot_id[0]][slot_id[1]]
+    detik = waktu.total_seconds() / 2
+    durasi_l = tk.Label(p4, text=f"{detik:.2f} jam", font='Garamond 15', background='#1F93C5',fg='#D5DCEE')
+    durasi_l.place(
+        x= 147,
+        y= 319
+    )
 
+slots_filled.trace("w", callback)
 
 
 
