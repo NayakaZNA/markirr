@@ -61,6 +61,8 @@ vehicle_type    = ''
 slot_id         = ["", 0]
 slots           = [[0 for j in range(5)] for i in range(5)]     +   [[0 for i in range(10)] for i in range(4)]
 plat            = [["" for j in range(5)] for i in range(5)]    +   [["" for j in range(10)] for i in range(4)]
+tersedia_mobil  = 19
+tersedia_motor  = 40
 
 # Konfigurasi Window
 window  = tk.Tk()
@@ -83,6 +85,26 @@ text2_img   = ImageTk.PhotoImage(Image.open(gambar("text2.png")))
 text3_img   = ImageTk.PhotoImage(Image.open(gambar("text3.png")))
 
 # Fungsi dan Prosedur
+## Fungsi isNumeric
+def isNumeric(x: str) -> bool:
+    # Menentukan apakah suatu string sepenuhnya terdiri atas angka
+    yes = True
+    for i in range(len(x)):
+        if not ('0' <= x[i] <= '9'):
+            yes = False
+            i = len(x)
+    return yes
+
+# Fungsi isAlphabetic
+def isAlphabetic(x: str) -> bool:
+    # Menentukan apakah suatu string sepenuhnya terdiri atas huruf
+    yes = True
+    for i in range(len(x)):
+        if not ('a' <= x[i] <= 'z' or 'A' <= x[i] <= 'Z'):
+            yes = False
+            i = len(x)
+    return yes
+
 ## Prosedur label
 def label(label_img: tk.PhotoImage, page: tk.Frame, x: float, y: float, width: float, height: float):
     # Mencetak label Tkinter
@@ -156,11 +178,19 @@ def caps(*args):
    seri_wilayah.set(seri_wilayah.get().upper())
    return
 
-## Prosedur limit4
-def limit_n(n: int, entri: tk.StringVar):
-    # Membatasi panjang entri menjadi n karakter
+## Prosedur limit_n
+def limit_n(n: int, entri: tk.StringVar, input_type: str):
+    # Membatasi panjang entri menjadi n karakter dan membatasi jenis input
     if len(entri.get()) > n-1:
         entri.set(entri.get()[:n])
+    if input_type == 'alphabetic':
+        if not isAlphabetic(entri.get()):
+            entri.set(entri.get()[:len(entri.get()) - 1])
+    elif input_type == 'numeric':
+        if not isNumeric(entri.get()):
+            entri.set(entri.get()[:len(entri.get()) - 1])
+
+    return
         
 
 ## Prosedur update_tnkb
@@ -329,7 +359,7 @@ nopol_menu.place(
     width   = 68,
     height  = 37
 )
-nopol.trace("w", lambda *args: limit_n(4, nopol))
+nopol.trace("w", lambda *args: limit_n(4, nopol, 'numeric'))
 
 ## Seri Wilayah
 seri_wilayah        = tk.StringVar(p3)
@@ -341,7 +371,7 @@ seri_wilayah_menu.place(
     height  = 37
 )
 seri_wilayah_menu.bind("<KeyRelease>", caps)
-seri_wilayah.trace("w", lambda *args: limit_n(3, seri_wilayah))
+seri_wilayah.trace("w", lambda *args: limit_n(3, seri_wilayah, 'alphabetic'))
 
 ## OK
 ok          = tk.Button(p3, text='OK', 
