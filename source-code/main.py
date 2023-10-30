@@ -10,13 +10,15 @@ def gambar(indomie: str) -> str:
 # Inisialisasi Awal
 ## Tipe Kendaraan
 vehicle_type    = ''
-slot_mobil      = [[0 for i in range(5)] for i in range(5)]
+slots           = [[0 for j in range(5)] for i in range(5)]     +   [[0 for i in range(10)] for i in range(4)]
+plat            = [["" for j in range(5)] for i in range(5)]    +   [["" for j in range(10)] for i in range(4)]
+count           = 0
 #slot_motor     =
 plat_nomor      = ["A","AA","AB","AD","AE","AG","B","BA","BB","BD","BE","BG","BH","BK","BL","BM","BN",
                    "BP","BR","D","DA","DB","DC","DD","DE","DG","DH","DK","DL","DM","DN","DP","DR","DT","DW",
                    "E","EA","EB","ED","F","G","H","K","KB","KH","KT","KU","L","M","N","P","PA","PB","S","T",
                    "W","Z"]
-
+slot_id = ["", 0]
 ## Dictionary Data Tempat Parkir
 tempat_parkir = {
     'motor': {
@@ -40,6 +42,14 @@ tempat_parkir = {
         }
     }
 }
+## Dictionary Blok Parkir
+blokk = {
+    'A': 0,
+    'B': 1,
+    'C': 2,
+    'D': 3,
+    'E': 4
+}
 
 # Konfigurasi Window
 window  = tk.Tk()
@@ -58,8 +68,17 @@ text2_img   = ImageTk.PhotoImage(Image.open(gambar("text2.png")))
 text3_img   = ImageTk.PhotoImage(Image.open(gambar("text3.png")))
 
 # Fungsi dan Prosedur
+## Prosedur slot_clicked
+def slot_clicked(slot: tk.Button, blok: str, num: int, slot_id = slot_id):
+    slot.config(state='disabled', background="#A7B8C8")
+    slots[blokk[blok]][num-1] = 1
+    slot_id[0] = blokk[blok]
+    slot_id[1] = num-1
+    p3.tkraise()
+    return 
+
 ## Prosedur slot
-def slot(x: float, y: float, blok: str, num: int, page: tk.Frame, disabled: bool = False, VIP: bool = False):
+def slot(x: float, y: float, blok: str, num: int, page: tk.Frame, disabled: bool = False, VIP: bool = False, count = count):
     # Membuat button slot parkir
     slot_l   = tk.Button(
     page,
@@ -75,9 +94,7 @@ def slot(x: float, y: float, blok: str, num: int, page: tk.Frame, disabled: bool
     slot_l.configure(borderwidth=0, 
                      highlightthickness=0, 
                      activebackground="#D5DCEE",
-                     command= lambda: [p3.tkraise(), 
-                                       slot_l.config(state='disabled', 
-                                                     background="#A7B8C8")])
+                     command= lambda: slot_clicked(slot_l, blok, num))
     return
 
 ## Prosedur label
@@ -116,8 +133,8 @@ def caps(*args):
 ## Prosedur update_tnkb
 def update_tnkb():
     global tnkb
-    tnkb_value = f"{kode_wilayah.get()} {nopol.get()} {seri_wilayah.get()}"
-    tnkb = tnkb_value
+    tnkb = f"{kode_wilayah.get()} {nopol.get()} {seri_wilayah.get()}"
+    plat[slot_id[0]][slot_id[1]] = tnkb
     return
 
 ## Prosedur ok_clicked
@@ -130,6 +147,8 @@ def ok_clicked():
         nopol_menu.config(state='disabled')
         seri_wilayah_menu.config(state='disabled')
         ok['state'] = 'disabled'
+        print(slots)
+        print(plat)
     else:
         print("Kolom Nopol dan Seri Wilayah tidak boleh kosong.")
 
