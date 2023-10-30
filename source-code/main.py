@@ -1,25 +1,31 @@
+# Program Markirr
+# Perangkat lunak sistem manajemen parkir cerdas otomatis
+# oleh
+# William Anthony               [16523109]; Lead Presenter
+# Muhammad Jafar Fadli          [16523137]; Backend
+# Zulfaqqar Nayaka Athadiansyah [19623116]; Software Engineer and GUI Designer
+# Abdullah Farhan               [19623305]; Lead Analyst
+
+# KAMUS
+## Daftar Variabel
+
+## Daftar Fungsi/Prosedur 
+
+# ALGORITMA
+
 import tkinter as tk
 from PIL import ImageTk, Image
-
-# Ini jangan diotak-atik rek
 import os
-khongguan = os.path.join(os.path.dirname(os.path.realpath(__file__)), "./Assets/")
-def gambar(indomie: str) -> str:
-    return khongguan + indomie
+
 
 # Inisialisasi Awal
-## Tipe Kendaraan
-vehicle_type    = ''
-slots           = [[0 for j in range(5)] for i in range(5)]     +   [[0 for i in range(10)] for i in range(4)]
-plat            = [["" for j in range(5)] for i in range(5)]    +   [["" for j in range(10)] for i in range(4)]
-count           = 0
-#slot_motor     =
+## Database
+### Kode Wilayah
 plat_nomor      = ["A","AA","AB","AD","AE","AG","B","BA","BB","BD","BE","BG","BH","BK","BL","BM","BN",
                    "BP","BR","D","DA","DB","DC","DD","DE","DG","DH","DK","DL","DM","DN","DP","DR","DT","DW",
                    "E","EA","EB","ED","F","G","H","K","KB","KH","KT","KU","L","M","N","P","PA","PB","S","T",
                    "W","Z"]
-slot_id = ["", 0]
-## Dictionary Data Tempat Parkir
+### Dictionary Data Tempat Parkir
 tempat_parkir = {
     'motor': {
         'reguler': {
@@ -51,6 +57,12 @@ blokk = {
     'E': 4
 }
 
+## Container
+vehicle_type    = ''
+slot_id         = ["", 0]
+slots           = [[0 for j in range(5)] for i in range(5)]     +   [[0 for i in range(10)] for i in range(4)]
+plat            = [["" for j in range(5)] for i in range(5)]    +   [["" for j in range(10)] for i in range(4)]
+
 # Konfigurasi Window
 window  = tk.Tk()
 window.geometry("760x570")
@@ -58,6 +70,10 @@ window.resizable(False, False)
 window.title("Markirr™")
 
 # Import Assets
+def gambar(indomie: str) -> str:
+    #
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), "./Assets/") + indomie
+
 header_img  = ImageTk.PhotoImage(Image.open(gambar("header.png")))
 markirrw_img= ImageTk.PhotoImage(Image.open(gambar("markirr-white.png")))
 markirrl_img= ImageTk.PhotoImage(Image.open(gambar("markirr_black.png")))
@@ -68,17 +84,39 @@ text2_img   = ImageTk.PhotoImage(Image.open(gambar("text2.png")))
 text3_img   = ImageTk.PhotoImage(Image.open(gambar("text3.png")))
 
 # Fungsi dan Prosedur
+## Prosedur label
+def label(label_img: tk.PhotoImage, page: tk.Frame, x: float, y: float, width: float, height: float):
+    # Mencetak label Tkinter
+    label_l    = tk.Label(page, image = label_img)
+    label_l.place(
+        x       = x,
+        y       = y,
+        width   = width,
+        height  = height
+    )
+    return
+
 ## Prosedur slot_clicked
 def slot_clicked(slot: tk.Button, blok: str, num: int, slot_id = slot_id):
-    slot.config(state='disabled', background="#A7B8C8")
-    slots[blokk[blok]][num-1] = 1
+    # Simpan data blok dan nomor parkir secara sementara
     slot_id[0] = blokk[blok]
     slot_id[1] = num-1
+    slots[slot_id[0]][slot_id[1]] = 1
+    slot.config(state='disabled', background="#A7B8C8")
+    # Reset kondisi entri dan dropdown
+    kode_wilayah_menu['state']  = 'normal'
+    nopol_menu['state']         = 'normal'
+    seri_wilayah_menu['state']  = 'normal'
+    ok['state']                 = 'normal'
+    nopol_menu.delete(0, 4)
+    seri_wilayah_menu.delete(0, 4)
+    kode_wilayah.set(plat_nomor[0])
+    # Menuju p3
     p3.tkraise()
     return 
 
 ## Prosedur slot
-def slot(x: float, y: float, blok: str, num: int, page: tk.Frame, disabled: bool = False, VIP: bool = False, count = count):
+def slot(x: float, y: float, blok: str, num: int, page: tk.Frame, disabled: bool = False, VIP: bool = False):
     # Membuat button slot parkir
     slot_l   = tk.Button(
     page,
@@ -97,24 +135,13 @@ def slot(x: float, y: float, blok: str, num: int, page: tk.Frame, disabled: bool
                      command= lambda: slot_clicked(slot_l, blok, num))
     return
 
-## Prosedur label
-def label(label_img: tk.PhotoImage, page: tk.Frame, x: float, y: float, width: float, height: float):
-    # Membuat label Tkinter
-    label_l    = tk.Label(page, image = label_img)
-    label_l.place(
-        x       = x,
-        y       = y,
-        width   = width,
-        height  = height
-    )
-    return
 
 ## Prosedur home
 def home(page: tk.Frame):
     # Membuat tombol home
     home_l     = tk.Button(
         page, image = home_img, 
-        command = lambda: [p1.tkraise()])
+        command = lambda: [p1.tkraise(), home_l.place_forget()])
     home_l.place(
         x       = 701,
         y       = 229,
@@ -132,24 +159,28 @@ def caps(*args):
 
 ## Prosedur update_tnkb
 def update_tnkb():
-    global tnkb
-    tnkb = f"{kode_wilayah.get()} {nopol.get()} {seri_wilayah.get()}"
-    plat[slot_id[0]][slot_id[1]] = tnkb
+    # Memasukkan TNKB ke dalam matriks `plat`
+    plat[slot_id[0]][slot_id[1]] = f"{kode_wilayah.get()} {nopol.get()} {seri_wilayah.get()}"
     return
 
 ## Prosedur ok_clicked
 def ok_clicked():
+    # Menjalankan sejumlah proses setelah button `ok` ditekan
+    ## Mengambil nopol dan seri wilayah
     nopol_value = nopol.get()
     seri_wilayah_value = seri_wilayah.get()
+    ## Percabangan: aksi dilakukan jika kolom entri sudah diisi
     if nopol_value.strip() and seri_wilayah_value.strip():
+        # Update data TNKB
         update_tnkb()
-        kode_wilayah_menu.config(state='disabled')
-        nopol_menu.config(state='disabled')
-        seri_wilayah_menu.config(state='disabled')
-        ok['state'] = 'disabled'
-        print(slots)
-        print(plat)
-    else:
+        # Disable button
+        kode_wilayah_menu['state']  = 'disabled'
+        nopol_menu['state']         = 'disabled'
+        seri_wilayah_menu['state']  = 'disabled'
+        ok['state']                 = 'disabled'
+        # Munculkan tombol home di halaman tersebut
+        home(p3)
+    else: # Entri nopol atau seri wilayah belum diisi
         print("Kolom Nopol dan Seri Wilayah tidak boleh kosong.")
 
 # Halaman-Halaman
@@ -305,7 +336,10 @@ seri_wilayah_menu.place(
 seri_wilayah_menu.bind("<KeyRelease>", caps)
 
 ## OK
-ok          = tk.Button(p3, text='OK', command=lambda:[ok_clicked(), home(p3)])
+ok          = tk.Button(p3, text='OK', 
+                        command=lambda:[ok_clicked(),
+                                        print(slots),
+                                        print(plat)])
 ok.place(
     x       = 490,
     y       = 240,
