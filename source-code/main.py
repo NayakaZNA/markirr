@@ -13,6 +13,7 @@
 # ALGORITMA
 
 import tkinter as tk
+import tkinter.ttk as ttk
 from PIL import ImageTk, Image
 import os
 from datetime import datetime
@@ -54,6 +55,7 @@ slot_id         = ["", 0]
 slots           = [[0 for j in range(5)] for i in range(4)]     +   [[0 for i in range(10)] for i in range(4)]
 plat            = [["" for j in range(5)] for i in range(4)]    +   [["" for j in range(10)] for i in range(4)]
 durasi          = [[0 for j in range(5)] for i in range(4)]     +   [[0 for i in range(10)] for i in range(4)]
+filled          = ["Masukkan slot parkir Anda:"]
 tersedia_mobil  = 20
 tersedia_motor  = 36
 jam, menit, detik = 0, 0, 0
@@ -82,7 +84,7 @@ mobil_img   = ImageTk.PhotoImage(Image.open(gambar("mobil.png")))
 motor_img   = ImageTk.PhotoImage(Image.open(gambar("motor.png")))
 exit_img    = ImageTk.PhotoImage(Image.open(gambar("exit.png")))
 durasi_img  = ImageTk.PhotoImage(Image.open(gambar("durasi.png")))
-biaya_img  = ImageTk.PhotoImage(Image.open(gambar("biaya.png")))
+biaya_img   = ImageTk.PhotoImage(Image.open(gambar("biaya.png")))
 
 # Fungsi dan Prosedur
 ## Fungsi isNumeric
@@ -121,6 +123,8 @@ def label(label_img: tk.PhotoImage, page: tk.Frame, x: float, y: float, width: f
 def slot_clicked(slot: tk.Button, blok: str, num: int, type: str, slot_id = slot_id):
     global tersedia_mobil, tersedia_motor
     # Simpan data blok dan nomor parkir secara sementara
+    filled.append(f"{blok}{num}")
+    print(filled)
     slot_id[0] = blokk[blok]
     slot_id[1] = num-1
     
@@ -151,6 +155,20 @@ def slot_clicked(slot: tk.Button, blok: str, num: int, type: str, slot_id = slot
     p3.tkraise()
     slot.config(state='disabled', background="#A7B8C8")
     return 
+
+## Prosedur exit_clicked
+def exit_clicked():
+    p4.tkraise()
+    slots_filled        = tk.StringVar()
+    slots_filled.set(filled[0])
+    slots_filled_menu   = tk.OptionMenu(p4, slots_filled, *filled)
+    slots_filled_menu.place(
+    x       = 255,
+    y       = 224,
+    width   = 250,
+    height  = 27
+)
+    return
 
 ## Prosedur slot
 def slot(x: float, y: float, blok: str, num: int, page: tk.Frame, disabled: bool = False, VIP: bool = False):
@@ -242,7 +260,7 @@ def ok_clicked():
     ## Memunculkan tombol `exit`
     exit_l     = tk.Button(
         p1, image = exit_img, 
-        command = lambda: [p4.tkraise()]
+        command = lambda: [exit_clicked()]
         )
     exit_l.place(
         x       = 309, 
@@ -480,9 +498,7 @@ seri_wilayah.trace("w", lambda *args: limit_n(3, seri_wilayah, 'alphabetic'))
 
 ## OK
 ok          = tk.Button(p3, text='OK', 
-                        command=lambda:[ok_clicked(),
-                                        print(slots),
-                                        print(plat)])
+                        command=lambda:[ok_clicked()])
 ok.place(
     x       = 470,
     y       = 350,
@@ -506,7 +522,8 @@ label(durasi_img, p4, 55, 266, 250, 97)
 ## Biaya
 label(biaya_img, p4, 455, 266, 250, 97)
 
-# Dropdown Slot Parkir
+
+
 
 
 # Eksekusi perulangan utama
