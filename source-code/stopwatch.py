@@ -7,25 +7,25 @@ root = tk.Tk()
 stopwatch = tk.Label(root, text="00:00")
 stopwatch.pack()
 
-menit = 0
-detik = 0
-berjalan = True
+jam, menit, detik = 0, 0, 0
+berjalan    = True
 def update_stopwatch():
-    global menit
-    global detik
+    global jam, menit, detik
     
     if berjalan:
-        if detik < 59:
-            detik += 1
-        elif detik == 59:
-            detik = 0
+        detik += 1
+        detik %= 60
+        if detik == 59:
             menit += 1
+            menit %= 60
+        if menit == 59:
+            jam += 1
 
     # Perbarui Label.
-    time_string = "{:02d}:{:02d}".format(menit, detik)
+    time_string = "{:02d}:{:02d}:{:02d}".format(jam, menit, detik)
     stopwatch.config(text=time_string)
 
-    root.after(1000, update_stopwatch)  # Memanggil kembali dalam 1000 ms
+    root.after(100, update_stopwatch)  # Memanggil kembali dalam 1000 ms
 
 update_stopwatch()  # Mulai mengupdate stopwatch
 
@@ -33,13 +33,15 @@ update_stopwatch()  # Mulai mengupdate stopwatch
 def stop_stopwatch():
     global berjalan
     berjalan = not berjalan
+    if berjalan:
+        stop_button.config(text="Stop")
+    else:
+        stop_button.config(text="Start")
 
 # Fungsi untuk mereset stopwatch
 def reset_stopwatch():
-    global menit, detik
-    menit = 0
-    detik = 0
-    stopwatch.config(text="00:00")
+    global jam, menit, detik
+    jam, menit, detik = 0, 0, 0
 
 # Tombol "Stop"
 stop_button = tk.Button(root, text="Stop", command=stop_stopwatch)
