@@ -53,6 +53,7 @@ blokk = {
 slot_id         = ["", 0]
 vehicle_data    = [[0 for j in range(5)] for i in range(4)]     +   [[0 for i in range(10)] for i in range(4)]
 terisi          = []
+slot_buttons    = []
 tersedia_mobil  = 20
 tersedia_motor  = 36
 berjalan        = True
@@ -126,7 +127,11 @@ def entry_limitn(n: int, entri: tk.StringVar, input_type: str):
 
 ## Prosedur keluar
 def keluar():
+    global tersedia_mobil, tersedia_motor
     # Menyimpan perintah-perintah yang dieksekusi saat kendaraaan keluar
+    ## Menampilkan tombol home
+    create_home(p4)
+
     ## Mengakses indeks data kendaraan dalam `vehicle_data`
     blok    = blokk[slot_terisi.get()[0]]
     nomor   = int(slot_terisi.get()[1]) - 1
@@ -138,6 +143,33 @@ def keluar():
         x = 147,
         y = 319
     )
+
+    # Menghitung biaya
+    if vehicle_data[blok][nomor]["jenis_kendaraan"] == "mobil":
+        biaya = 5000 * int(waktu)
+        # Enable slot parkir
+        slot_buttons[blok * 5 + nomor].configure(state='normal', bg="#1F93C5", fg="#D5DCEE")
+        ## Update counter ketersediaan slot parkir
+        tersedia_mobil += 1
+    else: #vehicle_data[blok][nomor]["jenis_kendaraan"] == "motor"
+        biaya = 2000 * int(waktu)
+        # Enable slot parkir
+        slot_buttons[20 + (blok - 4) * 10 + nomor].configure(state='normal', bg="#1F93C5", fg="#D5DCEE")
+        ## Update counter ketersediaan slot parkir
+        tersedia_motor += 1
+
+    biaya_l = tk.Label(p4, text=biaya, font='Garamond 15', background='#1F93C5',fg='#D5DCEE')
+    biaya_l.place(
+        x = 560,
+        y = 319
+    )
+
+    # Menghapus data kendaraan dalam `vehicle data` dan `slot_terisi`
+    vehicle_data[blok][nomor]["jenis_kendaraan"] = ""
+    vehicle_data[blok][nomor]["plat_nomor"]      = ""
+    vehicle_data[blok][nomor]["waktu_masuk"]     = ""
+    terisi.remove(f"{slot_terisi.get()[0]}{slot_terisi.get()[1]}")
+
     return
 
 
@@ -165,6 +197,7 @@ def create_slot(x: float, y: float, blok: str, num: int, page: tk.Frame, disable
                      highlightthickness=0, 
                      activebackground="#D5DCEE",
                      command= lambda: slot_clicked(slot_l, blok, num, type=tipe))
+    slot_buttons.append(slot_l)
     return
 
 
@@ -201,7 +234,9 @@ def slot_clicked(slot: tk.Button, blok: str, num: int, type: str, slot_id = slot
     global tersedia_mobil, tersedia_motor
     # Simpan data blok dan nomor parkir secara sementara
     terisi.append(f"{blok}{num}")
-    
+    if '-' in terisi:
+        terisi.remove('-')
+
     ## Jenis Kendaraan
     if 'A' <= blok <= 'D':
         jenis_kendaraan = 'mobil'
@@ -286,27 +321,78 @@ def ok1_clicked():
 slot_terisi        = tk.StringVar()
 def exit_clicked():
     p4.tkraise()
-    slot_terisi.set(terisi[0])
-    terisi.sort()
-    slot_terisi_menu   = tk.OptionMenu(p4, slot_terisi, *terisi)
-    slot_terisi_menu.place(
-    x       = 255,
-    y       = 224,
-    width   = 250,
-    height  = 27
-)
-
     
-    ok2 = tk.Button(p4, text="OK", command= lambda: keluar())
+    def create_slot_terisi_dropdown():
+        if len(terisi) != 0:
+            slot_terisi.set(terisi[0])
+            terisi.sort()
+        else: #len(terisi) == 0
+            terisi.append("-")
+        slot_terisi_menu   = tk.OptionMenu(p4, slot_terisi, *terisi)
+        slot_terisi_menu.place(
+        x       = 255,
+        y       = 224,
+        width   = 250,
+        height  = 27
+        )
+        return
+    create_slot_terisi_dropdown()
+    
+    def terisisi():
+        if '-' in terisi:
+            ok2.configure(state='disabled')
+        else: #len(terisi) == 0
+            ok2.configure(state='normal')
+
+    ok2 = tk.Button(p4, text="OK", command= lambda: [
+        keluar(),
+        create_slot_terisi_dropdown(),
+        terisisi()])
     ok2.place(
     x       = 520,
     y       = 224,
     width   = 25,
     height  = 25
 )
+    
     return
 
+## Prosedur mobil_clicked
+def mobil_clicked():
+    ### Counter Ketersediaan Slot Parkir
+    tersedia_mobil_l = tk.Label(p2_mobil, text=str(tersedia_mobil), font='Garamond 15', background='#243447',fg='#D5DCEE')
+    tersedia_mobil_l.place(
+        x       = 630,
+        y       = 407
+    )
 
+    gktersedia_mobil_l = tk.Label(p2_mobil, text=str(20 - tersedia_mobil), font='Garamond 15', background='#243447',fg='#D5DCEE')
+    gktersedia_mobil_l.place(
+        x       = 630,
+        y       = 458
+    )
+
+    create_home(p2_mobil)
+    p2_mobil.tkraise()
+    return
+
+## Prosedur motor_clicked
+def motor_clicked():
+    ### Counter Ketersediaan Slot Parkir
+    tersedia_motor_l = tk.Label(p2_motor, text=str(tersedia_motor), font='Garamond 15', background='#243447',fg='#D5DCEE')
+    tersedia_motor_l.place(
+        x       = 630,
+        y       = 407
+    )
+
+    gktersedia_motor_l = tk.Label(p2_motor, text=str(36 - tersedia_motor), font='Garamond 15', background='#243447',fg='#D5DCEE')
+    gktersedia_motor_l.place(
+        x       = 630,
+        y       = 459
+    )
+    create_home(p2_motor)
+    p2_motor.tkraise()
+    return
 
 # Halaman-Halaman
 p1          = tk.Frame(window, width=760, height=570)
@@ -335,7 +421,7 @@ create_label(text1_img, p1, 208, 231, 343, 22)
 
 mobil_l     = tk.Button(
     p1, image = mobil_img, 
-    command = lambda: [p2_mobil.tkraise(), create_home(p2_mobil)])
+    command = lambda: mobil_clicked())
 mobil_l.place(
     x       = 116, 
     y       = 296,
@@ -348,7 +434,7 @@ mobil_l.configure(borderwidth=0, highlightthickness=0, activebackground="#243447
 
 motor_l     = tk.Button(
     p1, image = motor_img, 
-    command = lambda: [p2_motor.tkraise(), create_home(p2_motor)]
+    command = lambda: motor_clicked()
     )
 motor_l.place(
     x       = 444, 
@@ -374,6 +460,8 @@ create_label(markirrl_img, p2_mobil, 26, 506, 125, 42)
 
 ### Button Parkir
 #### Blok A
+
+
 create_slot(117, 98, 'A', 1, p2_mobil)
 create_slot(159, 98, 'A', 2, p2_mobil)
 create_slot(201, 98, 'A', 3, p2_mobil)
@@ -407,13 +495,11 @@ tersedia_mobil_l.place(
     x       = 630,
     y       = 407
 )
-
 gktersedia_mobil_l = tk.Label(p2_mobil, text=str(20 - tersedia_mobil), font='Garamond 15', background='#243447',fg='#D5DCEE')
 gktersedia_mobil_l.place(
     x       = 630,
     y       = 458
 )
-
 
 # Halaman 2 (Motor)
 p2_motor.configure(bg="#243447")
