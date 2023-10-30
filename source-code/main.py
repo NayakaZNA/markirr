@@ -1,6 +1,5 @@
 # Program Markirr
-# Perangkat lunak sistem manajemen parkir cerdas otomatis
-# oleh
+# Perangkat lunak sistem manajemen parkir cerdas otomatis oleh
 # William Anthony               [16523109]; Lead Presenter
 # Muhammad Jafar Fadli          [16523137]; Backend
 # Zulfaqqar Nayaka Athadiansyah [19623116]; Software Engineer and GUI Designer
@@ -57,7 +56,7 @@ blokk = {
     'E': 4
 }
 
-## Container
+##
 vehicle_type    = ''
 slot_id         = ["", 0]
 slots           = [[0 for j in range(5)] for i in range(5)]     +   [[0 for i in range(10)] for i in range(4)]
@@ -156,6 +155,13 @@ def caps(*args):
    # Mengubah entri menjadi uppercase
    seri_wilayah.set(seri_wilayah.get().upper())
    return
+
+## Prosedur limit4
+def limit_n(n: int, entri: tk.StringVar):
+    # Membatasi panjang entri menjadi n karakter
+    if len(entri.get()) > n-1:
+        entri.set(entri.get()[:n])
+        
 
 ## Prosedur update_tnkb
 def update_tnkb():
@@ -296,7 +302,7 @@ label(header_img, p3, 0, -32, 760, 231)
 label(markirrw_img, p3, 264, 42, 257, 98)
 
 ## Instruksi
-label(text3_img, p3, 227, 205, 304, 21)
+label(text3_img, p3, 227, 285, 304, 21)
 
 ## Tombol Home
 
@@ -308,8 +314,8 @@ kode_wilayah = tk.StringVar(p3)
 kode_wilayah.set(plat_nomor[0])
 kode_wilayah_menu   = tk.OptionMenu(p3, kode_wilayah, *plat_nomor)
 kode_wilayah_menu.place(
-    x       = 264,
-    y       = 240,
+    x       = 244,
+    y       = 350,
     width   = 53,
     height  = 37
 )
@@ -318,22 +324,24 @@ kode_wilayah_menu.place(
 nopol       = tk.StringVar(p3)
 nopol_menu  = tk.Entry(p3, textvariable=nopol,font='Garamond 15', justify="center")
 nopol_menu.place(
-    x       = 337,
-    y       = 240,
+    x       = 317,
+    y       = 350,
     width   = 68,
     height  = 37
 )
+nopol.trace("w", lambda *args: limit_n(4, nopol))
 
 ## Seri Wilayah
 seri_wilayah        = tk.StringVar(p3)
 seri_wilayah_menu   = tk.Entry(p3, textvariable=seri_wilayah, font='Garamond 15', justify="center")
 seri_wilayah_menu.place(
-    x       = 425,
-    y       = 240,
+    x       = 405,
+    y       = 350,
     width   = 53,
     height  = 37
 )
 seri_wilayah_menu.bind("<KeyRelease>", caps)
+seri_wilayah.trace("w", lambda *args: limit_n(3, seri_wilayah))
 
 ## OK
 ok          = tk.Button(p3, text='OK', 
@@ -341,13 +349,13 @@ ok          = tk.Button(p3, text='OK',
                                         print(slots),
                                         print(plat)])
 ok.place(
-    x       = 490,
-    y       = 240,
+    x       = 470,
+    y       = 350,
     width   = 37,
     height  = 37
 )
 
 
-# Eksekusi
+# Eksekusi perulangan utama
 p1.tkraise()
 window.mainloop()
