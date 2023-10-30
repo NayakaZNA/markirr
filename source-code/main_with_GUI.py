@@ -9,6 +9,17 @@
 ## Daftar Variabel
 
 ## Daftar Fungsi/Prosedur 
+# isNumeric(str)        -> bool ; mengecek apakah suatu string tersusun sepenuhnya atas angka
+# isAlphabetic(str)     -> bool ; mengecek apakah suatu string tersusun sepenuhnya atas huruf
+# entry_caps                    ; memaksa entri menjadi uppercase
+# entry_limitn                  ; membatasi panjang entri menjadi n dan membatasi jenisnya
+# keluar                        ; menyimpan perintah-perintah yang dieksekusi saat kendaraaan keluar
+# create_slot                   ; membuat button slot parkir
+# create_home                   ; membuat button home
+# create_label                  ; mencetak label Tkinter bergambar
+# slot_clicked                  ; menyimpan perintah-perintah yang dieksekusi ketika button `slot` diklik
+# ok1_clicked                   ; menyimpan perintah-perintah yang dieksekusi ketika button `ok` diklik
+# exit_clicked                  ; menyimpan perintah-perintah yang dieksekusi ketika button `exit` diklik
 
 # ALGORITMA
 
@@ -38,29 +49,13 @@ blokk = {
     'H': 7
 }
 
-revblokk = {
-    0: 'A',
-    1: 'B',
-    2: 'C',
-    3: 'D',
-    4: 'E',
-    5: 'F',
-    6: 'G',
-    7: 'H'
-}
-
-##
-vehicle_type    = ''
+### Variabel Penampung Data
 slot_id         = ["", 0]
-slots           = [[0 for j in range(5)] for i in range(4)]     +   [[0 for i in range(10)] for i in range(4)]
-plat            = [["" for j in range(5)] for i in range(4)]    +   [["" for j in range(10)] for i in range(4)]
-durasi          = [[datetime.now() for j in range(5)] for i in range(4)]     +   [[datetime.now() for i in range(10)] for i in range(4)]
-filled          = ["A0"]
+vehicle_data    = [[0 for j in range(5)] for i in range(4)]     +   [[0 for i in range(10)] for i in range(4)]
+terisi          = []
 tersedia_mobil  = 20
 tersedia_motor  = 36
-jam, menit, detik = 0, 0, 0
 berjalan        = True
-count           = -1
 
 # Konfigurasi Window
 window  = tk.Tk()
@@ -90,7 +85,7 @@ biaya_img   = ImageTk.PhotoImage(Image.open(gambar("biaya.png")))
 # Fungsi dan Prosedur
 ## Fungsi isNumeric
 def isNumeric(x: str) -> bool:
-    # Menentukan apakah suatu string sepenuhnya terdiri atas angka
+    # Menentukan apakah suatu string sepenuhnya tersusun atas angka
     yes = True
     for i in range(len(x)):
         if not ('0' <= x[i] <= '9'):
@@ -100,7 +95,7 @@ def isNumeric(x: str) -> bool:
 
 # Fungsi isAlphabetic
 def isAlphabetic(x: str) -> bool:
-    # Menentukan apakah suatu string sepenuhnya terdiri atas huruf
+    # Menentukan apakah suatu string sepenuhnya tersusun atas huruf
     yes = True
     for i in range(len(x)):
         if not ('a' <= x[i] <= 'z' or 'A' <= x[i] <= 'Z'):
@@ -108,77 +103,53 @@ def isAlphabetic(x: str) -> bool:
             i = len(x)
     return yes
 
-## Prosedur label
-def label(label_img: tk.PhotoImage, page: tk.Frame, x: float, y: float, width: float, height: float):
-    # Mencetak label Tkinter bergambar
-    label_l    = tk.Label(page, image = label_img)
-    label_l.place(
-        x       = x,
-        y       = y,
-        width   = width,
-        height  = height
+## Prosedur entry_caps
+def entry_caps(*args):
+   # Memaksa entri menjadi uppercase
+   seri_wilayah.set(seri_wilayah.get().upper())
+   return
+
+## Prosedur entry_limitn
+def entry_limitn(n: int, entri: tk.StringVar, input_type: str):
+    # Membatasi panjang entri menjadi n karakter dan membatasi jenis input
+    masukan = entri.get()
+    if len(masukan) > n-1:
+        entri.set(masukan[:n])
+    if input_type == 'alphabetic':
+        if not isAlphabetic(masukan):
+            entri.set(masukan[:len(masukan) - 1])
+    elif input_type == 'numeric':
+        if not isNumeric(masukan):
+            entri.set(masukan[:len(masukan) - 1])
+    return
+
+
+## Prosedur keluar
+def keluar():
+    # Menyimpan perintah-perintah yang dieksekusi saat kendaraaan keluar
+    ## Mengakses indeks data kendaraan dalam `vehicle_data`
+    blok    = blokk[slot_terisi.get()[0]]
+    nomor   = int(slot_terisi.get()[1]) - 1
+
+    # Menghitung waktu keluar (disesuaikan dengan simulasi: 4 detik == 1 jam)
+    waktu = (datetime.now() - vehicle_data[blok][nomor]["waktu_masuk"]).total_seconds()/4
+    durasi_l = tk.Label(p4, text=f"{waktu:.2f} jam", font='Garamond 15', background='#1F93C5',fg='#D5DCEE')
+    durasi_l.place(
+        x = 147,
+        y = 319
     )
     return
 
-## Prosedur slot_clicked
-def slot_clicked(slot: tk.Button, blok: str, num: int, type: str, slot_id = slot_id):
-    global tersedia_mobil, tersedia_motor
-    # Simpan data blok dan nomor parkir secara sementara
-    filled.append(f"{blok}{num}")
-    print(filled)
-    slot_id[0] = blokk[blok]
-    slot_id[1] = num-1
-    
-    # Menyimpan data
-    slots[slot_id[0]][slot_id[1]] = 1
-    durasi[slot_id[0]][slot_id[1]] = datetime.now()
-    print(durasi)
 
-    # Counter ketersediaan slot parkir
-    if type == 'mobil':
-        tersedia_mobil -= 1
-        tersedia_mobil_l['text'] = tersedia_mobil
-        gktersedia_mobil_l['text'] = 20 - tersedia_mobil
-    else: # type == 'motor'
-        tersedia_motor -= 1
-        tersedia_motor_l['text'] = tersedia_motor
-        gktersedia_motor_l['text'] = 36 - tersedia_motor
 
-    # Reset kondisi entri dan dropdown
-    kode_wilayah_menu['state']  = 'normal'
-    nopol_menu['state']         = 'normal'
-    seri_wilayah_menu['state']  = 'normal'
-    ok['state']                 = 'normal'
-    nopol_menu.delete(0, 4)
-    seri_wilayah_menu.delete(0, 4)
-    kode_wilayah.set(plat_nomor[0])
-
-    # Menuju p3
-    p3.tkraise()
-    slot.config(state='disabled', background="#A7B8C8")
-    return 
-
-## Prosedur exit_clicked
-slots_filled        = tk.StringVar()
-def exit_clicked():
-    p4.tkraise()
-    slots_filled.set(filled[0])
-    slots_filled_menu   = tk.OptionMenu(p4, slots_filled, *filled)
-    slots_filled_menu.place(
-    x       = 255,
-    y       = 224,
-    width   = 250,
-    height  = 27
-)
-    return
-
-## Prosedur slot
-def slot(x: float, y: float, blok: str, num: int, page: tk.Frame, disabled: bool = False, VIP: bool = False):
+## Prosedur create_slot
+def create_slot(x: float, y: float, blok: str, num: int, page: tk.Frame, disabled: bool = False):
     # Membuat button slot parkir
     slot_l   = tk.Button(
     page,
     text= f"{blok}{num}",
-    bg="#1F93C5"
+    bg="#1F93C5",
+    fg="#D5DCEE",
     )
     slot_l.place(
         x       = x,
@@ -198,8 +169,8 @@ def slot(x: float, y: float, blok: str, num: int, page: tk.Frame, disabled: bool
 
 
 ## Prosedur home
-def home(page: tk.Frame):
-    # Membuat tombol home
+def create_home(page: tk.Frame):
+    # Membuat button home
     home_l     = tk.Button(
         page, image = home_img, 
         command = lambda: [p1.tkraise(), home_l.place_forget()])
@@ -212,50 +183,86 @@ def home(page: tk.Frame):
     home_l.configure(borderwidth=0, highlightthickness=0, activebackground="#243447")
     return
 
-## Prosedur caps
-def caps(*args):
-   # Mengubah entri menjadi uppercase
-   seri_wilayah.set(seri_wilayah.get().upper())
-   return
-
-## Prosedur limit_n
-def limit_n(n: int, entri: tk.StringVar, input_type: str):
-    # Membatasi panjang entri menjadi n karakter dan membatasi jenis input
-    masukan = entri.get()
-    if len(masukan) > n-1:
-        entri.set(masukan[:n])
-    if input_type == 'alphabetic':
-        if not isAlphabetic(masukan):
-            entri.set(masukan[:len(masukan) - 1])
-    elif input_type == 'numeric':
-        if not isNumeric(masukan):
-            entri.set(masukan[:len(masukan) - 1])
-    return
-        
-
-## Prosedur update_tnkb
-def update_tnkb():
-    # Memasukkan TNKB ke dalam matriks `plat`
-    plat[slot_id[0]][slot_id[1]] = f"{kode_wilayah.get()} {nopol.get()} {seri_wilayah.get()}"
+## Prosedur create_label
+def create_label(label_img: tk.PhotoImage, page: tk.Frame, x: float, y: float, width: float, height: float):
+    # Mencetak label Tkinter bergambar
+    label_l    = tk.Label(page, image = label_img)
+    label_l.place(
+        x       = x,
+        y       = y,
+        width   = width,
+        height  = height
+    )
     return
 
-## Prosedur ok_clicked
-def ok_clicked():
-    # Menjalankan sejumlah proses setelah button `ok` ditekan
+## Prosedur slot_clicked
+def slot_clicked(slot: tk.Button, blok: str, num: int, type: str, slot_id = slot_id):
+    # Menyimpan perintah-perintah yang dieksekusi ketika button `slot` diklik
+    global tersedia_mobil, tersedia_motor
+    # Simpan data blok dan nomor parkir secara sementara
+    terisi.append(f"{blok}{num}")
+    
+    ## Jenis Kendaraan
+    if 'A' <= blok <= 'D':
+        jenis_kendaraan = 'mobil'
+    elif 'E' <= blok <= 'H':
+        jenis_kendaraan = 'motor'
+
+    # Waktu Masuk
+    waktu_masuk = datetime.now()
+
+    ## Dictionary Data Kendaraan
+    slot_id[0]  = blokk[blok]
+    slot_id[1]  = num-1
+    
+    # Menyimpan data
+    vehicle_data[slot_id[0]][slot_id[1]] = {
+        "jenis_kendaraan"   : jenis_kendaraan,
+        "plat_nomor"        : "",
+        "waktu_masuk"       : waktu_masuk,
+    }
+
+    # Counter ketersediaan slot parkir
+    if type == 'mobil':
+        tersedia_mobil -= 1
+        tersedia_mobil_l['text'] = tersedia_mobil
+        gktersedia_mobil_l['text'] = 20 - tersedia_mobil
+    else: # type == 'motor'
+        tersedia_motor -= 1
+        tersedia_motor_l['text'] = tersedia_motor
+        gktersedia_motor_l['text'] = 36 - tersedia_motor
+
+    # Reset kondisi entri dan dropdown
+    kode_wilayah_menu['state']  = 'normal'
+    nopol_menu['state']         = 'normal'
+    seri_wilayah_menu['state']  = 'normal'
+    ok1['state']                = 'normal'
+    nopol_menu.delete(0, 4)
+    seri_wilayah_menu.delete(0, 4)
+    kode_wilayah.set(plat_nomor[0])
+
+    # Menuju p3
+    p3.tkraise()
+    slot.config(state='disabled', background="#A7B8C8")
+    return 
+
+## Prosedur ok1_clicked
+def ok1_clicked():
+    # Menjalankan sejumlah proses setelah button `ok1` ditekan
     ## Mengambil nopol dan seri wilayah
     nopol_value = nopol.get()
     seri_wilayah_value = seri_wilayah.get()
     ## Percabangan: aksi dilakukan jika kolom entri sudah diisi
     if nopol_value.strip() and seri_wilayah_value.strip():
         # Update data TNKB
-        update_tnkb()
+        vehicle_data[slot_id[0]][slot_id[1]]["plat_nomor"] = f"{kode_wilayah.get()} {nopol.get()} {seri_wilayah.get()}"
         # Disable button
         kode_wilayah_menu['state']  = 'disabled'
         nopol_menu['state']         = 'disabled'
         seri_wilayah_menu['state']  = 'disabled'
-        ok['state']                 = 'disabled'
+        ok1['state']                = 'disabled'
         # Munculkan tombol home di halaman tersebut
-        home(p3)
+        create_home(p3)
     else: # Entri nopol atau seri wilayah belum diisi
         print("Kolom Nopol dan Seri Wilayah tidak boleh kosong.")
     
@@ -273,6 +280,33 @@ def ok_clicked():
         height  = 39
     )
     exit_l.configure(borderwidth=0, highlightthickness=0, activebackground="#243447")
+    return
+
+## Prosedur exit_clicked
+slot_terisi        = tk.StringVar()
+def exit_clicked():
+    p4.tkraise()
+    slot_terisi.set(terisi[0])
+    terisi.sort()
+    slot_terisi_menu   = tk.OptionMenu(p4, slot_terisi, *terisi)
+    slot_terisi_menu.place(
+    x       = 255,
+    y       = 224,
+    width   = 250,
+    height  = 27
+)
+
+    
+    ok2 = tk.Button(p4, text="OK", command= lambda: keluar())
+    ok2.place(
+    x       = 520,
+    y       = 224,
+    width   = 25,
+    height  = 25
+)
+    return
+
+
 
 # Halaman-Halaman
 p1          = tk.Frame(window, width=760, height=570)
@@ -289,19 +323,19 @@ p1.configure(bg="#243447")
 p1.place(anchor='center', relx=0.5, rely=0.5)
 
 ## Header
-label(header_img, p1, 0, -32, 760, 231)
+create_label(header_img, p1, 0, -32, 760, 231)
 
 ## Logo & Slogan
-label(markirrw_img, p1, 264, 42, 257, 98)
+create_label(markirrw_img, p1, 264, 42, 257, 98)
 
 ## Instruksi
-label(text1_img, p1, 208, 231, 343, 22)
+create_label(text1_img, p1, 208, 231, 343, 22)
 
 ## Mobil
 
 mobil_l     = tk.Button(
     p1, image = mobil_img, 
-    command = lambda: [p2_mobil.tkraise(), home(p2_mobil)])
+    command = lambda: [p2_mobil.tkraise(), create_home(p2_mobil)])
 mobil_l.place(
     x       = 116, 
     y       = 296,
@@ -314,7 +348,7 @@ mobil_l.configure(borderwidth=0, highlightthickness=0, activebackground="#243447
 
 motor_l     = tk.Button(
     p1, image = motor_img, 
-    command = lambda: [p2_motor.tkraise(), home(p2_motor)]
+    command = lambda: [p2_motor.tkraise(), create_home(p2_motor)]
     )
 motor_l.place(
     x       = 444, 
@@ -330,42 +364,42 @@ p2_mobil.place(anchor='center', relx=0.5, rely=0.5)
 
 ## Layout Parkir
 ### Border
-label(border_img, p2_mobil, 70, 85, 593, 342)
+create_label(border_img, p2_mobil, 70, 85, 593, 342)
 
 ### Tersedia?
-label(text2_img, p2_mobil, 486, 404, 144, 83)
+create_label(text2_img, p2_mobil, 486, 404, 144, 83)
 
 ### Markirr Logo
-label(markirrl_img, p2_mobil, 26, 506, 125, 42)
+create_label(markirrl_img, p2_mobil, 26, 506, 125, 42)
 
 ### Button Parkir
 #### Blok A
-slot(117, 98, 'A', 1, p2_mobil)
-slot(159, 98, 'A', 2, p2_mobil)
-slot(201, 98, 'A', 3, p2_mobil)
-slot(243, 98, 'A', 4, p2_mobil)
-slot(285, 98, 'A', 5, p2_mobil)
+create_slot(117, 98, 'A', 1, p2_mobil)
+create_slot(159, 98, 'A', 2, p2_mobil)
+create_slot(201, 98, 'A', 3, p2_mobil)
+create_slot(243, 98, 'A', 4, p2_mobil)
+create_slot(285, 98, 'A', 5, p2_mobil)
 
 ### Blok B
-slot(404, 98, 'B', 1, p2_mobil)
-slot(446, 98, 'B', 2, p2_mobil)
-slot(488, 98, 'B', 3, p2_mobil)
-slot(530, 98, 'B', 4, p2_mobil)
-slot(572, 98, 'B', 5, p2_mobil)
+create_slot(404, 98, 'B', 1, p2_mobil)
+create_slot(446, 98, 'B', 2, p2_mobil)
+create_slot(488, 98, 'B', 3, p2_mobil)
+create_slot(530, 98, 'B', 4, p2_mobil)
+create_slot(572, 98, 'B', 5, p2_mobil)
 
 ### Blok C
-slot(160, 234, 'C', 1, p2_mobil)
-slot(230, 234, 'C', 2, p2_mobil)
-slot(300, 234, 'C', 3, p2_mobil)
-slot(370, 234, 'C', 4, p2_mobil)
-slot(440, 234, 'C', 5, p2_mobil)
+create_slot(160, 234, 'C', 1, p2_mobil)
+create_slot(230, 234, 'C', 2, p2_mobil)
+create_slot(300, 234, 'C', 3, p2_mobil)
+create_slot(370, 234, 'C', 4, p2_mobil)
+create_slot(440, 234, 'C', 5, p2_mobil)
 
 #### Blok D
-slot(117, 363, 'D', 1, p2_mobil)
-slot(159, 363, 'D', 2, p2_mobil)
-slot(201, 363, 'D', 3, p2_mobil)
-slot(243, 363, 'D', 4, p2_mobil)
-slot(285, 363, 'D', 5, p2_mobil)
+create_slot(117, 363, 'D', 1, p2_mobil)
+create_slot(159, 363, 'D', 2, p2_mobil)
+create_slot(201, 363, 'D', 3, p2_mobil)
+create_slot(243, 363, 'D', 4, p2_mobil)
+create_slot(285, 363, 'D', 5, p2_mobil)
 
 ### Counter Ketersediaan Slot Parkir
 tersedia_mobil_l = tk.Label(p2_mobil, text=str(tersedia_mobil), font='Garamond 15', background='#243447',fg='#D5DCEE')
@@ -387,58 +421,58 @@ p2_motor.place(anchor='center', relx=0.5, rely=0.5)
 
 ## Layout Parkir
 ### Border
-label(border_img, p2_motor, 70, 85, 593, 342)
+create_label(border_img, p2_motor, 70, 85, 593, 342)
 
 ### Tersedia?
-label(text2_img, p2_motor, 486, 404, 144, 83)
+create_label(text2_img, p2_motor, 486, 404, 144, 83)
 
 ### Markirr Logo
-label(markirrl_img, p2_motor, 26, 506, 125, 42)
+create_label(markirrl_img, p2_motor, 26, 506, 125, 42)
 
 ### Button Parkir
 #### Blok E
-slot(117, 98, 'E', 1, p2_motor)
-slot(159, 98, 'E', 2, p2_motor)
-slot(201, 98, 'E', 3, p2_motor)
-slot(243, 98, 'E', 4, p2_motor)
-slot(285, 98, 'E', 5, p2_motor)
-slot(327, 98, 'E', 6, p2_motor)
-slot(369, 98, 'E', 7, p2_motor)
-slot(411, 98, 'E', 8, p2_motor)
-slot(453, 98, 'E', 9, p2_motor)
-slot(495, 98, 'E', 10, p2_motor)
+create_slot(117, 98, 'E', 1, p2_motor)
+create_slot(159, 98, 'E', 2, p2_motor)
+create_slot(201, 98, 'E', 3, p2_motor)
+create_slot(243, 98, 'E', 4, p2_motor)
+create_slot(285, 98, 'E', 5, p2_motor)
+create_slot(327, 98, 'E', 6, p2_motor)
+create_slot(369, 98, 'E', 7, p2_motor)
+create_slot(411, 98, 'E', 8, p2_motor)
+create_slot(453, 98, 'E', 9, p2_motor)
+create_slot(495, 98, 'E', 10, p2_motor)
 
 #### Blok F
-slot(117, 200, 'F', 1, p2_motor)
-slot(159, 200, 'F', 2, p2_motor)
-slot(201, 200, 'F', 3, p2_motor)
-slot(243, 200, 'F', 4, p2_motor)
-slot(285, 200, 'F', 5, p2_motor)
-slot(327, 200, 'F', 6, p2_motor)
-slot(369, 200, 'F', 7, p2_motor)
-slot(411, 200, 'F', 8, p2_motor)
-slot(453, 200, 'F', 9, p2_motor)
-slot(495, 200, 'F', 10, p2_motor)
+create_slot(117, 200, 'F', 1, p2_motor)
+create_slot(159, 200, 'F', 2, p2_motor)
+create_slot(201, 200, 'F', 3, p2_motor)
+create_slot(243, 200, 'F', 4, p2_motor)
+create_slot(285, 200, 'F', 5, p2_motor)
+create_slot(327, 200, 'F', 6, p2_motor)
+create_slot(369, 200, 'F', 7, p2_motor)
+create_slot(411, 200, 'F', 8, p2_motor)
+create_slot(453, 200, 'F', 9, p2_motor)
+create_slot(495, 200, 'F', 10, p2_motor)
 
 #### Blok G
-slot(117, 268, 'G', 1, p2_motor)
-slot(159, 268, 'G', 2, p2_motor)
-slot(201, 268, 'G', 3, p2_motor)
-slot(243, 268, 'G', 4, p2_motor)
-slot(285, 268, 'G', 5, p2_motor)
-slot(327, 268, 'G', 6, p2_motor)
-slot(369, 268, 'G', 7, p2_motor)
-slot(411, 268, 'G', 8, p2_motor)
-slot(453, 268, 'G', 9, p2_motor)
-slot(495, 268, 'G', 10, p2_motor)
+create_slot(117, 268, 'G', 1, p2_motor)
+create_slot(159, 268, 'G', 2, p2_motor)
+create_slot(201, 268, 'G', 3, p2_motor)
+create_slot(243, 268, 'G', 4, p2_motor)
+create_slot(285, 268, 'G', 5, p2_motor)
+create_slot(327, 268, 'G', 6, p2_motor)
+create_slot(369, 268, 'G', 7, p2_motor)
+create_slot(411, 268, 'G', 8, p2_motor)
+create_slot(453, 268, 'G', 9, p2_motor)
+create_slot(495, 268, 'G', 10, p2_motor)
 
 #### Blok H
-slot(117, 363, 'H', 1, p2_motor)
-slot(159, 363, 'H', 2, p2_motor)
-slot(201, 363, 'H', 3, p2_motor)
-slot(243, 363, 'H', 4, p2_motor)
-slot(285, 363, 'H', 5, p2_motor)
-slot(327, 363, 'H', 6, p2_motor)
+create_slot(117, 363, 'H', 1, p2_motor)
+create_slot(159, 363, 'H', 2, p2_motor)
+create_slot(201, 363, 'H', 3, p2_motor)
+create_slot(243, 363, 'H', 4, p2_motor)
+create_slot(285, 363, 'H', 5, p2_motor)
+create_slot(327, 363, 'H', 6, p2_motor)
 
 ### Counter Ketersediaan Slot Parkir
 tersedia_motor_l = tk.Label(p2_motor, text=str(tersedia_motor), font='Garamond 15', background='#243447',fg='#D5DCEE')
@@ -457,13 +491,13 @@ gktersedia_motor_l.place(
 p3.configure(bg="#243447")
 p3.place(anchor='center', relx=0.5, rely=0.5)
 ## Header
-label(header_img, p3, 0, -32, 760, 231)
+create_label(header_img, p3, 0, -32, 760, 231)
 
 ## Logo & Slogan
-label(markirrw_img, p3, 264, 42, 257, 98)
+create_label(markirrw_img, p3, 264, 42, 257, 98)
 
 ## Instruksi
-label(text3_img, p3, 227, 285, 304, 21)
+create_label(text3_img, p3, 227, 285, 304, 21)
 
 ## TNKB
 ### Dropdown Kode Wilayah
@@ -486,7 +520,7 @@ nopol_menu.place(
     width   = 68,
     height  = 37
 )
-nopol.trace("w", lambda *args: limit_n(4, nopol, 'numeric'))
+nopol.trace("w", lambda *args: entry_limitn(4, nopol, 'numeric'))
 
 ## Seri Wilayah
 seri_wilayah        = tk.StringVar(p3)
@@ -497,13 +531,13 @@ seri_wilayah_menu.place(
     width   = 53,
     height  = 37
 )
-seri_wilayah_menu.bind("<KeyRelease>", caps)
-seri_wilayah.trace("w", lambda *args: limit_n(3, seri_wilayah, 'alphabetic'))
+seri_wilayah_menu.bind("<KeyRelease>", entry_caps)
+seri_wilayah.trace("w", lambda *args: entry_limitn(3, seri_wilayah, 'alphabetic'))
 
-## OK
-ok          = tk.Button(p3, text='OK', 
-                        command=lambda:[ok_clicked()])
-ok.place(
+## OK1
+ok1          = tk.Button(p3, text='OK', 
+                        command=lambda:[ok1_clicked()])
+ok1.place(
     x       = 470,
     y       = 350,
     width   = 37,
@@ -515,35 +549,16 @@ p4.configure(bg="#243447")
 p4.place(anchor='center', relx=0.5, rely=0.5)
 
 ## Header
-label(header_img, p4, 0, -32, 760, 231)
+create_label(header_img, p4, 0, -32, 760, 231)
 
 ## Logo & Slogan
-label(markirrw_img, p4, 264, 42, 257, 98)
+create_label(markirrw_img, p4, 264, 42, 257, 98)
 
 ## Durasi
-label(durasi_img, p4, 55, 266, 250, 97)
+create_label(durasi_img, p4, 55, 266, 250, 97)
 
 ## Biaya
-label(biaya_img, p4, 455, 266, 250, 97)
-
-def callback(*args):
-    global count, jam, menit, detik
-    if count == -1:
-        filled.remove('A0')
-        count += 1
-    slot_id[0] = blokk[slots_filled.get()[0]]
-    slot_id[1] = int(slots_filled.get()[1]) - 1
-    waktu = datetime.now() - durasi[slot_id[0]][slot_id[1]]
-    detik = waktu.total_seconds() / 2
-    durasi_l = tk.Label(p4, text=f"{detik:.2f} jam", font='Garamond 15', background='#1F93C5',fg='#D5DCEE')
-    durasi_l.place(
-        x= 147,
-        y= 319
-    )
-
-slots_filled.trace("w", callback)
-
-
+create_label(biaya_img, p4, 455, 266, 250, 97)
 
 # Eksekusi perulangan utama
 p1.tkraise()
