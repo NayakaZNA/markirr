@@ -25,22 +25,7 @@ plat_nomor      = ["A","AA","AB","AD","AE","AG","B","BA","BB","BD","BE","BG","BH
                    "BP","BR","D","DA","DB","DC","DD","DE","DG","DH","DK","DL","DM","DN","DP","DR","DT","DW",
                    "E","EA","EB","ED","F","G","H","K","KB","KH","KT","KU","L","M","N","P","PA","PB","S","T",
                    "W","Z"]
-### Dictionary Data Tempat Parkir
-tempat_parkir = {
-    'motor': {
-        'reguler': {
-            'space': 20,
-            'rate': 5000  # Tarif per hari
-        },
-    },
-    'mobil': {
-        'reguler': {
-            'space': 50,
-            'rate': 10000  # Tarif per hari
-        },
-    }
-}
-## Dictionary Blok Parkir
+### Dictionary Blok Parkir
 blokk = {
     'A': 0,
     'B': 1,
@@ -52,12 +37,23 @@ blokk = {
     'H': 7
 }
 
+revblokk = {
+    0: 'A',
+    1: 'B',
+    2: 'C',
+    3: 'D',
+    4: 'E',
+    5: 'F',
+    6: 'G',
+    7: 'H'
+}
+
 ##
 vehicle_type    = ''
 slot_id         = ["", 0]
-slots           = [[0 for j in range(5)] for i in range(5)]     +   [[0 for i in range(10)] for i in range(4)]
-plat            = [["" for j in range(5)] for i in range(5)]    +   [["" for j in range(10)] for i in range(4)]
-durasi          = [[0 for j in range(5)] for i in range(5)]     +   [[0 for i in range(10)] for i in range(4)]
+slots           = [[0 for j in range(5)] for i in range(4)]     +   [[0 for i in range(10)] for i in range(4)]
+plat            = [["" for j in range(5)] for i in range(4)]    +   [["" for j in range(10)] for i in range(4)]
+durasi          = [[0 for j in range(5)] for i in range(4)]     +   [[0 for i in range(10)] for i in range(4)]
 tersedia_mobil  = 20
 tersedia_motor  = 36
 jam, menit, detik = 0, 0, 0
@@ -82,6 +78,11 @@ home_img    = ImageTk.PhotoImage(Image.open(gambar("home.png")))
 text1_img   = ImageTk.PhotoImage(Image.open(gambar("text1.png")))
 text2_img   = ImageTk.PhotoImage(Image.open(gambar("text2.png")))
 text3_img   = ImageTk.PhotoImage(Image.open(gambar("text3.png")))
+mobil_img   = ImageTk.PhotoImage(Image.open(gambar("mobil.png")))
+motor_img   = ImageTk.PhotoImage(Image.open(gambar("motor.png")))
+exit_img    = ImageTk.PhotoImage(Image.open(gambar("exit.png")))
+durasi_img  = ImageTk.PhotoImage(Image.open(gambar("durasi.png")))
+biaya_img  = ImageTk.PhotoImage(Image.open(gambar("biaya.png")))
 
 # Fungsi dan Prosedur
 ## Fungsi isNumeric
@@ -237,6 +238,19 @@ def ok_clicked():
         home(p3)
     else: # Entri nopol atau seri wilayah belum diisi
         print("Kolom Nopol dan Seri Wilayah tidak boleh kosong.")
+    
+    ## Memunculkan tombol `exit`
+    exit_l     = tk.Button(
+        p1, image = exit_img, 
+        command = lambda: [p4.tkraise()]
+        )
+    exit_l.place(
+        x       = 309, 
+        y       = 513,
+        width   = 141,
+        height  = 39
+    )
+    exit_l.configure(borderwidth=0, highlightthickness=0, activebackground="#243447")
 
 # Halaman-Halaman
 p1          = tk.Frame(window, width=760, height=570)
@@ -262,10 +276,10 @@ label(markirrw_img, p1, 264, 42, 257, 98)
 label(text1_img, p1, 208, 231, 343, 22)
 
 ## Mobil
-mobil_img   = ImageTk.PhotoImage(Image.open(gambar("mobil.png")))
+
 mobil_l     = tk.Button(
     p1, image = mobil_img, 
-    command = lambda: [p2_mobil.tkraise(), lambda vehicle_type: ("mobil")])
+    command = lambda: [p2_mobil.tkraise(), home(p2_mobil)])
 mobil_l.place(
     x       = 116, 
     y       = 296,
@@ -275,10 +289,10 @@ mobil_l.place(
 mobil_l.configure(borderwidth=0, highlightthickness=0, activebackground="#243447")
 
 ## Motor
-motor_img   = ImageTk.PhotoImage(Image.open(gambar("motor.png")))
+
 motor_l     = tk.Button(
     p1, image = motor_img, 
-    command = lambda: [p2_motor.tkraise()]
+    command = lambda: [p2_motor.tkraise(), home(p2_motor)]
     )
 motor_l.place(
     x       = 444, 
@@ -288,13 +302,9 @@ motor_l.place(
 )
 motor_l.configure(borderwidth=0, highlightthickness=0, activebackground="#243447")
 
-
 # Halaman 2 (Mobil)
 p2_mobil.configure(bg="#243447")
 p2_mobil.place(anchor='center', relx=0.5, rely=0.5)
-
-## Tombol Home
-home(p2_mobil)
 
 ## Layout Parkir
 ### Border
@@ -352,9 +362,6 @@ gktersedia_mobil_l.place(
 # Halaman 2 (Motor)
 p2_motor.configure(bg="#243447")
 p2_motor.place(anchor='center', relx=0.5, rely=0.5)
-
-## Tombol Home
-home(p2_motor)
 
 ## Layout Parkir
 ### Border
@@ -482,6 +489,24 @@ ok.place(
     width   = 37,
     height  = 37
 )
+
+# Halaman 4 (Keluar)
+p4.configure(bg="#243447")
+p4.place(anchor='center', relx=0.5, rely=0.5)
+
+## Header
+label(header_img, p4, 0, -32, 760, 231)
+
+## Logo & Slogan
+label(markirrw_img, p4, 264, 42, 257, 98)
+
+## Durasi
+label(durasi_img, p4, 55, 266, 250, 97)
+
+## Biaya
+label(biaya_img, p4, 455, 266, 250, 97)
+
+# Dropdown Slot Parkir
 
 
 # Eksekusi perulangan utama
