@@ -72,11 +72,12 @@ def slot(x: float, y: float, blok: str, num: int, page: tk.Frame, disabled: bool
         width   = 34,
         height  = 51
     )
-    slot_l.configure(command= lambda: p3.tkraise())
-    if disabled:
-        slot_l.configure(borderwidth=0, highlightthickness=0, background="#A7B8C8", state="disabled")
-    else:
-        slot_l.configure(borderwidth=0, highlightthickness=0, activebackground="#D5DCEE")
+    slot_l.configure(borderwidth=0, 
+                     highlightthickness=0, 
+                     activebackground="#D5DCEE",
+                     command= lambda: [p3.tkraise(), 
+                                       slot_l.config(state='disabled', 
+                                                     background="#A7B8C8")])
     return
 
 ## Prosedur label
@@ -106,11 +107,11 @@ def home(page: tk.Frame):
     home_l.configure(borderwidth=0, highlightthickness=0, activebackground="#243447")
     return
 
-## Prosedur disable_after_clicked
-def disable_after_clicked_ok():
-    # Menonaktifkan tombol setelah diklik
-    ok['state'] = 'disabled'
-    return
+## Prosedur caps
+def caps(*args):
+   # Mengubah entri menjadi uppercase
+   seri_wilayah.set(seri_wilayah.get().upper())
+   return
 
 ## Prosedur update_tnkb
 def update_tnkb():
@@ -119,10 +120,18 @@ def update_tnkb():
     tnkb = tnkb_value
     return
 
-## Prosedur caps
-def caps(*args):
-   seri_wilayah.set(seri_wilayah.get().upper())
-   return
+## Prosedur ok_clicked
+def ok_clicked():
+    nopol_value = nopol.get()
+    seri_wilayah_value = seri_wilayah.get()
+    if nopol_value.strip() and seri_wilayah_value.strip():
+        update_tnkb()
+        kode_wilayah_menu.config(state='disabled')
+        nopol_menu.config(state='disabled')
+        seri_wilayah_menu.config(state='disabled')
+        ok['state'] = 'disabled'
+    else:
+        print("Kolom Nopol dan Seri Wilayah tidak boleh kosong.")
 
 # Halaman-Halaman
 p1          = tk.Frame(window, width=760, height=570)
@@ -198,26 +207,26 @@ slot(117, 98, 'A', 1, p2_mobil)
 slot(159, 98, 'A', 2, p2_mobil)
 slot(201, 98, 'A', 3, p2_mobil)
 slot(243, 98, 'A', 4, p2_mobil)
-slot(285, 98, 'A', 5, p2_mobil, disabled=True)
+slot(285, 98, 'A', 5, p2_mobil)
 
 ### Blok B
 slot(404, 98, 'B', 1, p2_mobil)
-slot(446, 98, 'B', 2, p2_mobil, disabled=True)
-slot(488, 98, 'B', 3, p2_mobil, disabled=True)
-slot(530, 98, 'B', 4, p2_mobil, disabled=True)
+slot(446, 98, 'B', 2, p2_mobil)
+slot(488, 98, 'B', 3, p2_mobil)
+slot(530, 98, 'B', 4, p2_mobil)
 slot(572, 98, 'B', 5, p2_mobil)
 
 ### Blok C
 slot(160, 234, 'C', 1, p2_mobil)
-slot(230, 234, 'C', 2, p2_mobil, disabled=True)
+slot(230, 234, 'C', 2, p2_mobil)
 slot(300, 234, 'C', 3, p2_mobil)
 slot(370, 234, 'C', 4, p2_mobil)
 
 #### Blok D
-slot(117, 363, 'D', 1, p2_mobil, disabled=True)
+slot(117, 363, 'D', 1, p2_mobil)
 slot(159, 363, 'D', 2, p2_mobil)
 slot(201, 363, 'D', 3, p2_mobil)
-slot(243, 363, 'D', 4, p2_mobil, disabled=True)
+slot(243, 363, 'D', 4, p2_mobil)
 slot(285, 363, 'D', 5, p2_mobil)
 
 # Halaman 2 (Motor)
@@ -240,7 +249,6 @@ label(markirrw_img, p3, 264, 42, 257, 98)
 label(text3_img, p3, 227, 205, 304, 21)
 
 ## Tombol Home
-home(p3)
 
 ## TNKB
 tnkb = "          "
@@ -257,7 +265,6 @@ kode_wilayah_menu.place(
 )
 
 ## Nopol
-
 nopol       = tk.StringVar(p3)
 nopol_menu  = tk.Entry(p3, textvariable=nopol,font='Garamond 15', justify="center")
 nopol_menu.place(
@@ -268,8 +275,6 @@ nopol_menu.place(
 )
 
 ## Seri Wilayah
-
-
 seri_wilayah        = tk.StringVar(p3)
 seri_wilayah_menu   = tk.Entry(p3, textvariable=seri_wilayah, font='Garamond 15', justify="center")
 seri_wilayah_menu.place(
@@ -281,18 +286,7 @@ seri_wilayah_menu.place(
 seri_wilayah_menu.bind("<KeyRelease>", caps)
 
 ## OK
-def ok_clicked():
-    nopol_value = nopol.get()
-    seri_wilayah_value = seri_wilayah.get()
-    if nopol_value.strip() and seri_wilayah_value.strip():
-        update_tnkb()
-        kode_wilayah_menu.config(state='disabled')
-        nopol_menu.config(state='disabled')
-        seri_wilayah_menu.config(state='disabled')
-    else:
-        print("Nopol and Seri Wilayah cannot be empty")
-
-ok          = tk.Button(p3, text='OK', command=lambda : [ok_clicked(), print(tnkb)])
+ok          = tk.Button(p3, text='OK', command=lambda:[ok_clicked(), home(p3)])
 ok.place(
     x       = 490,
     y       = 240,
