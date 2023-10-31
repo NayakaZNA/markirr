@@ -7,6 +7,16 @@
 
 # KAMUS
 ## Daftar Variabel
+# plat_nomor            :    arr[str]        ; daftar kode wilayah TNKB di Indonesia
+# blokk                 :    dict            ; konversi blok parkir (alfabetik) ke indeks array (numerik)
+# slot_id               :    arr[str, int]   ; menampung sementara blok dan nomor slot parkir
+# vehicle_data          :    arr[dict]       ; menampung data kendaraan
+# terisi                :    arr[str]        ; daftar slot parkir yang telah terisi
+# slot_buttons          :    arr[tk.Button]  ; menampung button slot parkir
+# tersedia_motor        :    int             ; banyak slot parkir mobil yang tersedia
+# tersedia_mobil        :    int             ; banyak slot parkir motor yang tersedia
+# Variabel-variabel dengan akhiran `img` adalah gambar yang diimport dari folder `Assets`
+
 
 ## Daftar Fungsi/Prosedur 
 # isNumeric(str)        -> bool ; mengecek apakah suatu string tersusun sepenuhnya atas angka
@@ -18,7 +28,8 @@
 # create_home                   ; membuat button home
 # create_label                  ; mencetak label Tkinter bergambar
 # slot_clicked                  ; menyimpan perintah-perintah yang dieksekusi ketika button `slot` diklik
-# ok1_clicked                   ; menyimpan perintah-perintah yang dieksekusi ketika button `ok` diklik
+# ok1_clicked                   ; menyimpan perintah-perintah yang dieksekusi ketika button `ok1` diklik
+# ok2_clicked                   ; menyimpan perintah-perintah yang dieksekusi ketika button `ok2` diklik
 # exit_clicked                  ; menyimpan perintah-perintah yang dieksekusi ketika button `exit` diklik
 
 # ALGORITMA
@@ -56,7 +67,6 @@ terisi          = []
 slot_buttons    = []
 tersedia_mobil  = 20
 tersedia_motor  = 36
-berjalan        = True
 
 # Konfigurasi Window
 window  = tk.Tk()
@@ -65,9 +75,9 @@ window.resizable(False, False)
 window.title("Markirr™")
 
 # Import Assets
-def gambar(indomie: str) -> str:
+def gambar(namafile: str) -> str:
     #
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)), "./Assets/") + indomie
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), "./Assets/") + namafile
 
 header_img  = ImageTk.PhotoImage(Image.open(gambar("header.png")))
 markirrw_img= ImageTk.PhotoImage(Image.open(gambar("markirr-white.png")))
@@ -158,8 +168,8 @@ def keluar():
         ## Update counter ketersediaan slot parkir
         tersedia_motor += 1
 
-    biaya_l = tk.Label(p4, text=biaya, font='Garamond 15', background='#1F93C5',fg='#D5DCEE')
-    biaya_l.place(
+    biaya_nominal = tk.Label(p4, text=biaya, font='Garamond 15', background='#1F93C5',fg='#D5DCEE')
+    biaya_nominal.place(
         x = 560,
         y = 319
     )
@@ -168,7 +178,7 @@ def keluar():
     vehicle_data[blok][nomor]["jenis_kendaraan"] = ""
     vehicle_data[blok][nomor]["plat_nomor"]      = ""
     vehicle_data[blok][nomor]["waktu_masuk"]     = ""
-    terisi.remove(f"{slot_terisi.get()[0]}{slot_terisi.get()[1]}")
+    terisi.remove(slot_terisi.get())
 
     return
 
@@ -291,6 +301,7 @@ def ok1_clicked():
     if nopol_value.strip() and seri_wilayah_value.strip():
         # Update data TNKB
         vehicle_data[slot_id[0]][slot_id[1]]["plat_nomor"] = f"{kode_wilayah.get()} {nopol.get()} {seri_wilayah.get()}"
+        terisi[-1] += ": " + vehicle_data[slot_id[0]][slot_id[1]]["plat_nomor"]
         # Disable button
         kode_wilayah_menu['state']  = 'disabled'
         nopol_menu['state']         = 'disabled'
@@ -315,6 +326,26 @@ def ok1_clicked():
         height  = 39
     )
     exit_l.configure(borderwidth=0, highlightthickness=0, activebackground="#243447")
+    return
+
+## prosedur ok2_clicked
+def ok2_clicked():
+    ## Mengakses indeks data kendaraan dalam `vehicle_data`
+    blok    = blokk[slot_terisi.get()[0]]
+    nomor   = int(slot_terisi.get()[1]) - 1
+
+    ## Mengakses tipe kendaraan, plat nomor, waktu masuk, dan waktu keluar
+    tipe        = vehicle_data[blok][nomor]['jenis_kendaraan']
+    plat        = vehicle_data[blok][nomor]['plat_nomor']
+    waktu_masuk = vehicle_data[blok][nomor]['waktu_masuk']
+    waktu_keluar= datetime.now()
+
+    teks_info = f"Jenis kendaraan: {tipe} \n Nomor TNKB: {plat} \n Waktu masuk: {waktu_masuk} \n Waktu keluar: {waktu_keluar}"
+    vehicle_info = tk.Label(p4, text=teks_info, font='Garamond 15', justify="center", background='#243447',fg='#D5DCEE')
+    vehicle_info.place(
+        x       = 200,
+        y       = 450
+    )
     return
 
 ## Prosedur exit_clicked
@@ -344,7 +375,20 @@ def exit_clicked():
         else: #len(terisi) == 0
             ok2.configure(state='normal')
 
+    biaya_nominal = tk.Label(p4, text="         ", font='Garamond 15', background='#1F93C5',fg='#D5DCEE')
+    biaya_nominal.place(
+        x = 560,
+        y = 319
+    )    
+
+    durasi_l = tk.Label(p4, text="             ", font='Garamond 15', background='#1F93C5',fg='#D5DCEE')
+    durasi_l.place(
+        x = 147,
+        y = 319
+    )
+
     ok2 = tk.Button(p4, text="OK", command= lambda: [
+        ok2_clicked(),
         keluar(),
         create_slot_terisi_dropdown(),
         terisisi()])
